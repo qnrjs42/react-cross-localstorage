@@ -1,0 +1,7 @@
+src
+coverage
+.vscode
+.travis.yml
+LICENSE
+__test__
+tsconfig.json
