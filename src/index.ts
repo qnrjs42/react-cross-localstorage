@@ -9,7 +9,7 @@ export { openIframe } from './openIframe';
 export { closeIframe } from './closeIframe';
 export { postLocalStorage } from './postLocalStorage';
 export { openPostLocalStorageClose } from './openPostLocalStorageClose';
-export type { IOpenIframe, IPostLocalStorage, IOpenPostLocalStorageClose } from './shared';
+export type { IOpenIframe, ICloseIframe, IPostLocalStorage, IOpenPostLocalStorageClose } from './shared';
 
 const crossLocalstorage = {
   openIframe,

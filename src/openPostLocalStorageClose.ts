@@ -1,8 +1,9 @@
-import { addListener, createIframe, filterData, IPostLocalStorage, IOpenPostLocalStorageClose, iframeLoadingSleep, IIframePostMessage, resetIframeOnLoadCount } from "./shared";
+import { addListener, createIframe, filterData, IPostLocalStorage, IOpenPostLocalStorageClose, iframeLoadingSleep, IIframePostMessage, resetIframeOnLoadCount, resetPostCount } from "./shared";
 
 export const openPostLocalStorageClose = async (data: IOpenPostLocalStorageClose) => {
   try {
     resetIframeOnLoadCount();
+    resetPostCount();
 
     const infoData: IPostLocalStorage = filterData(data);
 

@@ -29,10 +29,13 @@ export interface IKeyValueString {
   [key: string]: string;
 }
 
-interface IPublic {
-  pathname: string;
+interface IBase {
   parentDomain: string;
   childDomains: IKeyValueString;
+}
+
+interface IPublic extends IBase {
+  pathname: string;
 }
 
 export interface IPostLocalStorage extends IPublic {
@@ -48,6 +51,8 @@ export interface IOpenPostLocalStorageClose extends IPostLocalStorage {
 export interface IOpenIframe extends IPublic {
   reactId?: string;
 }
+
+export interface ICloseIframe extends IBase {}
 
 interface IMessageEventData {
   status: 'postToParent' | 'postToChild' | 'removeToChild';
@@ -120,7 +125,6 @@ export const createIframe = (
 export const iframeLoadingSleep = (iframeCount: number) => {
   return new Promise<void>(resolve => {
     const iframeOnLoadCount: number = getIframeOnLoadCount();
-    console.log('>>>', iframeCount, iframeOnLoadCount);
     if (iframeOnLoadCount < iframeCount) {
       setTimeout(async () => {
         resolve(iframeLoadingSleep(iframeCount));
@@ -134,7 +138,6 @@ export const iframeLoadingSleep = (iframeCount: number) => {
 export const postLoadingSleep = (postCount: number) => {
   return new Promise<void>(resolve => {
     const postLoadCount: number = getPostCount();
-    console.log(postCount, postLoadCount);
     if (postLoadCount < postCount) {
       setTimeout(async () => {
         resolve(postLoadingSleep(postCount));
@@ -154,7 +157,7 @@ export const addListener = () => {
   window.addEventListener('message', postMessageEventHandler);
 };
 
-export const removeListener = () => {
+const removeListener = () => {
   window.removeEventListener('message', postMessageEventHandler);
 };
 

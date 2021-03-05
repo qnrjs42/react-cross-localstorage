@@ -1,6 +1,6 @@
 import { IKeyValueString } from "./shared";
 
-export const closeIframe = async (parentDomain: string, domains: IKeyValueString) => {
+export const closeIframe = (parentDomain: string, domains: IKeyValueString) => {
   let parentDomainKey: string = '';
 
   for (const key of Object.keys(domains)) {
