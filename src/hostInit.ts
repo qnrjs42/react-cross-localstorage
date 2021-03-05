@@ -1,19 +1,26 @@
-import { createIframe, IOpenIframe } from "./shared";
+import { createIframe, IHostInit, initialResetSetting, setGuestDomains, setPathName } from "./shared";
 
-export const openIframe = async (data: IOpenIframe) => {
+export const hostInit = async (data: IHostInit) => {
   try {
+    // 전역변수 초기화
+    initialResetSetting();
+
+    // 전역변수 할당
+    setGuestDomains(data.guestDomains);
+    setPathName(data.pathName);
+
     const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;
     let parentDomainKey: string = '';
 
-    for (const key in Object.keys(data.childDomains)) {
-      if (key === data.parentDomain.split('.')[0]) {
+    for (const key in Object.keys(data.guestDomains)) {
+      if (key === document.domain.split('.')[0]) {
         parentDomainKey = key;
       } else {
         parentDomainKey = 'main';
       }
     }
 
-    for (const [key, domain] of Object.entries(data.childDomains)) {
+    for (const [key, domain] of Object.entries(data.guestDomains)) {
       // 현재 도메인 iframe 생성 제외
       if (parentDomainKey === key) continue;
 

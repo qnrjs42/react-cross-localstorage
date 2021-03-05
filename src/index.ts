@@ -1,22 +1,28 @@
-import { addListener } from './shared';
-import { openIframe } from './openIframe';
+import { getItem } from './getItem';
+import { setItem } from './setItem';
+import { clear } from './clearItem';
+import { hostInit } from './hostInit';
+import { removeItem } from './removeItem';
 import { closeIframe } from './closeIframe';
-import { postLocalStorage } from './postLocalStorage';
-import { openPostLocalStorageClose } from './openPostLocalStorageClose';
+import { addListener as guestInit } from './shared';
 
-export { addListener } from './shared';
-export { openIframe } from './openIframe';
-export { closeIframe } from './closeIframe';
-export { postLocalStorage } from './postLocalStorage';
-export { openPostLocalStorageClose } from './openPostLocalStorageClose';
-export type { IOpenIframe, ICloseIframe, IPostLocalStorage, IOpenPostLocalStorageClose } from './shared';
+export { getItem } from './getItem';
+export { setItem } from './setItem';
+export { clear } from './clearItem';
+export { hostInit } from './hostInit';
+export { removeItem } from './removeItem';
+export { addListener as guestInit } from './shared';
+export { closeIframe as close } from './closeIframe';
+export type { IResultMessage, IHostInit } from './shared';
 
 const crossLocalstorage = {
-  openIframe,
-  closeIframe,
-  postLocalStorage,
-  openPostLocalStorageClose,
-  addListener,
+  hostInit,
+  guestInit,
+  getItem,
+  setItem,
+  removeItem,
+  clear,
+  close: closeIframe,
 };
 
 export default crossLocalstorage;

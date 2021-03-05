@@ -1,10 +1,10 @@
-import { IKeyValueString } from "./shared";
+import { getDoamins } from "../config/config";
 
-export const closeIframe = (parentDomain: string, domains: IKeyValueString) => {
+export const closeIframe = () => {
   let parentDomainKey: string = '';
 
-  for (const key of Object.keys(domains)) {
-    if (key === parentDomain.split('.')[0]) {
+  for (const key of Object.keys(getDoamins())) {
+    if (key === document.domain.split('.')[0]) {
       parentDomainKey = key;
     } else {
       parentDomainKey = 'main';

@@ -1,41 +1,67 @@
 let iframeOnLoadCount = 0;
 let postCount = 0;
+let guestDomains: IKeyValueString | null = null;
+let pathName = '';
 
 export const getIframeOnLoadCount = () => {
   return iframeOnLoadCount;
 };
-
-export const setIframeOnLoadCount = () => {
+export const setIframeOnLoadCount = (): void => {
   iframeOnLoadCount += 1;
 };
-
-export const resetIframeOnLoadCount = () => {
+export const resetIframeOnLoadCount = (): void => {
   iframeOnLoadCount = 0;
 }
 
-export const getPostCount = () => {
+export const getPostCount = (): number => {
   return postCount;
 };
-
-export const setPostCount = () => {
+export const setPostCount = (): void => {
   postCount += 1;
 };
-
-export const resetPostCount = () => {
+export const resetPostCount = (): void => {
   postCount = 0;
 }
+
+export const getPathName = (): string => {
+  return pathName;
+};
+export const setPathName = (_pathName: string): void => {
+  pathName = _pathName;
+};
+export const resetPathName = (): void => {
+  pathName = '';
+}
+
+export const getGuestDomains = () => {
+  return guestDomains;
+};
+export const setGuestDomains = (_guestDomains: IKeyValueString) => {
+  guestDomains = _guestDomains;
+};
+export const resetGuestDomains = () => {
+  guestDomains = null;
+}
+
+export const initialResetSetting = () => {
+  resetIframeOnLoadCount();
+  resetPostCount();
+  resetPathName();
+  resetGuestDomains();
+}
+
 
 export interface IKeyValueString {
   [key: string]: string;
 }
 
 interface IBase {
-  parentDomain: string;
-  childDomains: IKeyValueString;
+  hostDomain: string;
+  guestDomains: IKeyValueString;
 }
 
 interface IPublic extends IBase {
-  pathname: string;
+  pathName: string;
 }
 
 export interface IPostLocalStorage extends IPublic {
@@ -48,23 +74,29 @@ export interface IOpenPostLocalStorageClose extends IPostLocalStorage {
   reactId?: string;
 }
 
-export interface IOpenIframe extends IPublic {
+export interface IHostInit {
+  guestDomains: IKeyValueString;
+  pathName: string;
   reactId?: string;
 }
 
-export interface ICloseIframe extends IBase {}
+export interface IResultMessage {
+  status: 'SUCCESS' | 'FAILED';
+  message?: string;
+}
 
 interface IMessageEventData {
-  status: 'postToParent' | 'postToChild' | 'removeToChild';
+  status: 'postToHost' | 'postToGuest' | 'removeToGuest';
   key: string;
-  lastChildKey: string;
-  parentDomain: string;
-  childDomain: string;
-  childDomains: IKeyValueString;
+  lastGuestKey: string;
+  hostDomain: string;
+  guestDomain: string;
+  guestDomains: IKeyValueString;
   once? : boolean;
-  pathname?: string;
   isRemoveAll?: boolean;
-  localStorageInfo?: IKeyValueString;
+  setLocalStorageInfoObj?: IKeyValueString;
+  removeLocalStorageInfo?: string[] | string;
+  pathName?: string;
 }
 interface INewMessageEvent extends MessageEvent {
   target: Window;
@@ -74,27 +106,45 @@ interface INewMessageEvent extends MessageEvent {
 
 export interface IIframePostMessage {
   key: string;
-  lastChildKey: string;
-  parentDomain: string;
-  childDomain: string;
-  childDomains: IKeyValueString;
-  pathname?: string;
-  isRemove?: boolean;
+  hostDomain: string;
+  guestDomain: string;
+  guestDomains: IKeyValueString;
+  lastGuestKey: string;
+  setLocalStorageInfoObj?: IKeyValueString;
+  removeLocalStorageInfo?: string[] | string;
   isRemoveAll?: boolean;
-  localStorageKeys?: string[];
 }
 
-export const filterData = (data: IPostLocalStorage) => {
-  const infoObj: any = {};
+export const returnError = (data: any): IResultMessage => {
+  let message = '';
+  if (data.guestDomains && data.guestDomains == null) {
+    message = 'guestDoamins Error. 게스트도메인이 비워져있습니다.';
+  }
+  if (data.pathName && data.pathName === '') {
+    message = 'pathName Error. pathName이 비워져있습니다.';
+  }
+  if (data.keys && (data.keys.length === 0 || data.keys === '')) {
+    message = 'Key Error. key가 비워져있습니다.';
+  }
+  if (data.values && (data.values.length === 0 || data.values === '')) {
+    message = 'Value Error. Value가 비워져있습니다.';
+  }
+  if (data.keys && (typeof data.keys === 'string' && Array.isArray(data.values))) {
+    message = 'Value Error. Key보다 Value가 더 많습니다';
+  }
+  if (data.values &&  (typeof data.values === 'string' && Array.isArray(data.keys))) {
+    message = 'Key Error. Value보다 Key가 더 많습니다';
+  }
 
-  infoObj['localStorageKeys'] = data.localStorageKeys ? data.localStorageKeys : null;
-  infoObj['parentDomain'] = data.parentDomain ?? '';
-  infoObj['childDomains'] = data.childDomains ? data.childDomains : null;
-  infoObj['pathname'] = data.pathname ?? '';
-  infoObj['isRemove'] = data.isRemove ? data.isRemove : false;
-  infoObj['isRemoveAll'] = data.isRemoveAll ? data.isRemoveAll : false;
-  
-  return infoObj;
+  if (message !== '') {
+    return {
+      status: 'FAILED',
+      message,
+    }
+  }
+  return {
+    status: 'SUCCESS',
+  }
 };
 
 export const createIframe = (
@@ -122,28 +172,46 @@ export const createIframe = (
   );
 }
 
-export const iframeLoadingSleep = (iframeCount: number) => {
-  return new Promise<void>(resolve => {
-    const iframeOnLoadCount: number = getIframeOnLoadCount();
-    if (iframeOnLoadCount < iframeCount) {
+export const iframeLoadingSleep = (iframeCount: number, failedCount: number = 0) => {
+  return new Promise<IResultMessage>((resolve, reject) => {
+    if (failedCount >= 10) {
+
+      return reject({
+        status: 'FAILED',
+        message: 'Iframe Error. Iframe Load Failed.',
+      });
+    } 
+    const _iframeOnLoadCount: number = getIframeOnLoadCount();
+    if (_iframeOnLoadCount < iframeCount) {
       setTimeout(async () => {
-        resolve(iframeLoadingSleep(iframeCount));
+        resolve(iframeLoadingSleep(iframeCount, failedCount++));
       }, 400);
     } else {
-      return resolve();
+      return resolve({
+        status: 'SUCCESS',
+      });
     }
   });
 };
 
-export const postLoadingSleep = (postCount: number) => {
-  return new Promise<void>(resolve => {
+export const postLoadingSleep = (postCount: number, failedCount: number = 0) => {
+  return new Promise<IResultMessage>((resolve, reject) => {
+    if (failedCount >= 10) {
+
+      return reject({
+        status: 'FAILED',
+        message: 'Post Error. Post Failed.',
+      });
+    } 
     const postLoadCount: number = getPostCount();
     if (postLoadCount < postCount) {
       setTimeout(async () => {
         resolve(postLoadingSleep(postCount));
       }, 400);
     } else {
-      return resolve();
+      return resolve({
+        status: 'SUCCESS',
+      });
     }
   });
 };
@@ -157,101 +225,112 @@ export const addListener = () => {
   window.addEventListener('message', postMessageEventHandler);
 };
 
-const removeListener = () => {
+export const removeListener = () => {
   window.removeEventListener('message', postMessageEventHandler);
 };
 
-export const iframePostMessage = (data: IIframePostMessage, once?: boolean) => {
-  const localStorageInfoObj: IKeyValueString = {};
-  data.localStorageKeys && data.localStorageKeys.map((localStorageInfo: string) => {
-    localStorageInfoObj[localStorageInfo] = window.localStorage.getItem(localStorageInfo)!;
-    return null;
-  });
-
+export const iframePostMessage = (data: IIframePostMessage, once: boolean = false) => {
   const postData: IMessageEventData = {
-    status: 'postToChild',
-    key : data.key,
-    lastChildKey: data.lastChildKey,
-    parentDomain: data.parentDomain,
-    childDomains: data.childDomains,
-    childDomain: data.childDomain,
-    localStorageInfo: localStorageInfoObj,
+    status: 'postToGuest',
+    key: data.key,
+    lastGuestKey: data.lastGuestKey,
+    hostDomain: data.hostDomain,
+    guestDomains: data.guestDomains,
+    guestDomain: data.guestDomain,
   };
 
   if (once) {
+    // 한 번에 iframe 생성, post 전송 후 iframe 제거
     postData['once'] = true;
   } else {
     postData['once'] = false;
   }
 
-  if (!data.isRemove && !data.isRemoveAll) {
-    postData['status'] = 'postToChild';
+  if (data.setLocalStorageInfoObj) {
+    // setItem일 떄
+    postData['setLocalStorageInfoObj'] = data.setLocalStorageInfoObj;
+  }
+  if (data.removeLocalStorageInfo) {
+    // removeItem일 때
+    postData['removeLocalStorageInfo'] = data.removeLocalStorageInfo;
+  }
+
+  if (!data.removeLocalStorageInfo && !data.isRemoveAll) {
+    postData['status'] = 'postToGuest';
   } else {
     if (data.isRemoveAll) {
       postData['isRemoveAll'] = true;
+    } else {
+      postData['isRemoveAll'] = false;
     }
-    postData['status'] = 'removeToChild';
-    postData['pathname'] = data.pathname;
+    postData['status'] = 'removeToGuest';
+    postData['pathName'] = getPathName();
   }
 
   const iframe = document.getElementById(data.key) as HTMLIFrameElement;
 
-  iframe.contentWindow?.postMessage(postData, data.childDomain);
+  iframe.contentWindow?.postMessage(postData, data.guestDomain);
 };
 
 const postMessageEventHandler = (event: MessageEvent) => {
   const customEvent = event as INewMessageEvent;
 
-  // child receive (set localstorage)
+  // guest receive (set localstorage)
   // 1차 보안 위협 제거
   if (
-    customEvent.origin.split('/')[2].split(':')[0] === customEvent.data.parentDomain &&
-    customEvent.data.status === 'postToChild'
+    customEvent.origin.split('/')[2].split(':')[0] === customEvent.data.hostDomain &&
+    customEvent.data.status === 'postToGuest'
   ) {
     // 2차 보안 위협 제거
-    if (customEvent.data.childDomain !== customEvent.target.location.origin) return;
+    if (customEvent.data.guestDomain !== customEvent.target.location.origin) return;
 
     // localStorage 저장
-    for (const [key, value] of Object.entries(customEvent.data.localStorageInfo!)) {
+    for (const [key, value] of Object.entries(customEvent.data.setLocalStorageInfoObj!)) {
       const realValue: string = value as string;
       localStorage.setItem(key, realValue);
     }
     // 성공 시 부모에게 메시지 전달
     customEvent.source.postMessage(
       {
-        status: 'postToParent',
+        status: 'postToHost',
         key: customEvent.data.key,
-        lastChildKey: customEvent.data.lastChildKey,
-        parentDomain: customEvent.data.parentDomain,
-        childDomains: customEvent.data.childDomains,
+        lastGuestKey: customEvent.data.lastGuestKey,
+        hostDomain: customEvent.data.hostDomain,
+        guestDomains: customEvent.data.guestDomains,
         once: customEvent.data.once,
       },
       customEvent.origin,
     );
   }
 
-  //child receive (remove localstorage)
-  if (customEvent.data.status === 'removeToChild') {
-    const domains = customEvent.data.childDomains;
+  //guest receive (remove localstorage)
+  if (customEvent.data.status === 'removeToGuest') {
+    const domains = customEvent.data.guestDomains;
     // 보안 위협 제거
     for (const domain of Object.values(domains)) {
-      const splitDomain: string = domain ? domain?.split(customEvent.data.pathname!)[0] : '';
+      const splitDomain: string = domain ? domain?.split(customEvent.data.pathName!)[0] : '';
       if (splitDomain === customEvent.origin) {
+        const removeLocalStorageInfo = customEvent.data.removeLocalStorageInfo;
+
         if (customEvent.data.isRemoveAll) {
           localStorage.clear();
-        } else if (customEvent.data.localStorageInfo) {
-          for (const key of Object.keys(customEvent.data.localStorageInfo)) {
-            localStorage.removeItem(key);
+        } else if (removeLocalStorageInfo) {
+          if (Array.isArray(removeLocalStorageInfo)) {
+            removeLocalStorageInfo.map((key: string) => {
+              return localStorage.removeItem(key);
+            });
+          } else if (typeof removeLocalStorageInfo === 'string') {
+            localStorage.removeItem(removeLocalStorageInfo);
           }
         }
 
         customEvent.source.postMessage(
           {
-            status: 'postToParent',
+            status: 'postToHost',
             key: customEvent.data.key,
-            lastChildKey: customEvent.data.lastChildKey,
-            parentDomain: customEvent.data.parentDomain,
-            childDomains: customEvent.data.childDomains,
+            lastGuestKey: customEvent.data.lastGuestKey,
+            hostDomain: customEvent.data.hostDomain,
+            guestDomains: customEvent.data.guestDomains,
             once: customEvent.data.once,
           },
           customEvent.origin,
@@ -262,8 +341,8 @@ const postMessageEventHandler = (event: MessageEvent) => {
   }
 
   // parent receive (remove iframe, eventListener)
-  if (customEvent.data.status === 'postToParent') {
-    const domains = customEvent.data.childDomains;
+  if (customEvent.data.status === 'postToHost') {
+    const domains = customEvent.data.guestDomains;
     let isDomain = false;
 
     for (const domain of Object.values(domains)) {
@@ -279,7 +358,7 @@ const postMessageEventHandler = (event: MessageEvent) => {
     if (customEvent.data.once) {
       // iframe 제거함으로써 렌더링 최적화
       removeIframe(customEvent.data.key);
-      if (customEvent.data.key === customEvent.data.lastChildKey) {
+      if (customEvent.data.key === customEvent.data.lastGuestKey) {
         removeListener();
       }
     } else {
