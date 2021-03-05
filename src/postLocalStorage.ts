@@ -1,16 +1,16 @@
-import { addPostMessageListener, filterData, ICrossStorage, iframeLoadingSleep, iframePostMessage, IIframePostMessage } from "./shared";
+import { addListener, filterData, IPostLocalStorage, iframeLoadingSleep, iframePostMessage, IIframePostMessage, resetPostCount, postLoadingSleep } from "./shared";
 
-export const crossStorage = async (data: ICrossStorage) => {
+export const postLocalStorage = async (data: IPostLocalStorage) => {
   try {
-    const infoData: ICrossStorage = filterData(data);
+    const infoData: IPostLocalStorage = filterData(data);
+    const domainsCount = Object.keys(infoData.childDomains).length - 1;
 
-    const lastChildKey: string = Object.keys(infoData.childDomains)[Object.keys(infoData.childDomains).length - 1];
+    const lastChildKey: string = Object.keys(infoData.childDomains)[domainsCount];
     let parentDomainKey: string = '';
-    addPostMessageListener();
+    addListener();
 
-    console.log(infoData);
-    await iframeLoadingSleep(Object.keys(infoData.childDomains).length - 1);
-
+    await iframeLoadingSleep(domainsCount);
+    resetPostCount();
 
     if (infoData.isRemove && !infoData.isRemoveAll) {
       for (const key of infoData.localStorageKeys!) {
@@ -24,14 +24,15 @@ export const crossStorage = async (data: ICrossStorage) => {
       if (key === infoData.parentDomain.split('.')[0]) {
         parentDomainKey = key;
       } else {
-        parentDomainKey = 'root';
+        parentDomainKey = 'main';
       }
     }
 
     for (const [key, domain] of Object.entries(infoData.childDomains)) {
       if (parentDomainKey === key) continue;
 
-      const childDomain = domain.split(infoData.pathname)[0];
+      const stringDomain = domain as string;
+      const childDomain = stringDomain.split(infoData.pathname)[0];
       const postMessageObj: IIframePostMessage = {
         key, 
         lastChildKey, 
@@ -52,6 +53,7 @@ export const crossStorage = async (data: ICrossStorage) => {
         iframePostMessage(postMessageObj);
       }
     }
+    await postLoadingSleep(domainsCount);
     return 'done';
   } catch (err) {
     console.error(err);

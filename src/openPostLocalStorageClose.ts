@@ -1,15 +1,15 @@
-import { addPostMessageListener, createIframe, filterData, ICrossStorage, ICrossStorageOnce, iframeLoadingSleep, IIframePostMessage, resetIframeOnLoadCount } from "./shared";
+import { addListener, createIframe, filterData, IPostLocalStorage, IOpenPostLocalStorageClose, iframeLoadingSleep, IIframePostMessage, resetIframeOnLoadCount } from "./shared";
 
-export const crossStorageOnce = async (data: ICrossStorageOnce) => {
+export const openPostLocalStorageClose = async (data: IOpenPostLocalStorageClose) => {
   try {
     resetIframeOnLoadCount();
 
-    const infoData: ICrossStorage = filterData(data);
+    const infoData: IPostLocalStorage = filterData(data);
 
     const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;
     const lastChildKey: string = Object.keys(data.childDomains)[Object.keys(data.childDomains).length - 1];
     let parentDomainKey: string = '';
-    addPostMessageListener();
+    addListener();
 
     if (infoData.isRemove && !infoData.isRemoveAll) {
       for (const key of infoData.localStorageKeys!) {
@@ -23,7 +23,7 @@ export const crossStorageOnce = async (data: ICrossStorageOnce) => {
       if (key === infoData.parentDomain.split('.')[0]) {
         parentDomainKey = key;
       } else {
-        parentDomainKey = 'root';
+        parentDomainKey = 'main';
       }
     }
 

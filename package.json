@@ -1,6 +1,6 @@
 {
   "name": "react-cross-localstorage",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "iframe cross domain localstorage share",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

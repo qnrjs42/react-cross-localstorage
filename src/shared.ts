@@ -1,4 +1,5 @@
 let iframeOnLoadCount = 0;
+let postCount = 0;
 
 export const getIframeOnLoadCount = () => {
   return iframeOnLoadCount;
@@ -12,27 +13,39 @@ export const resetIframeOnLoadCount = () => {
   iframeOnLoadCount = 0;
 }
 
-interface IKeyValueString {
+export const getPostCount = () => {
+  return postCount;
+};
+
+export const setPostCount = () => {
+  postCount += 1;
+};
+
+export const resetPostCount = () => {
+  postCount = 0;
+}
+
+export interface IKeyValueString {
   [key: string]: string;
 }
 
 interface IPublic {
+  pathname: string;
   parentDomain: string;
   childDomains: IKeyValueString;
-  pathname: string;
 }
 
-export interface ICrossStorage extends IPublic {
-  localStorageKeys?: string[];
+export interface IPostLocalStorage extends IPublic {
   isRemove?: boolean;
   isRemoveAll?: boolean;
+  localStorageKeys?: string[];
 }
 
-export interface ICrossStorageOnce extends ICrossStorage {
+export interface IOpenPostLocalStorageClose extends IPostLocalStorage {
   reactId?: string;
 }
 
-export interface IAddIframes extends IPublic {
+export interface IOpenIframe extends IPublic {
   reactId?: string;
 }
 
@@ -41,12 +54,12 @@ interface IMessageEventData {
   key: string;
   lastChildKey: string;
   parentDomain: string;
-  childDomains: IKeyValueString;
   childDomain: string;
-  pathname?: string;
-  localStorageInfo?: IKeyValueString;
-  isRemoveAll?: boolean;
+  childDomains: IKeyValueString;
   once? : boolean;
+  pathname?: string;
+  isRemoveAll?: boolean;
+  localStorageInfo?: IKeyValueString;
 }
 interface INewMessageEvent extends MessageEvent {
   target: Window;
@@ -58,15 +71,15 @@ export interface IIframePostMessage {
   key: string;
   lastChildKey: string;
   parentDomain: string;
-  childDomains: IKeyValueString;
   childDomain: string;
+  childDomains: IKeyValueString;
+  pathname?: string;
   isRemove?: boolean;
   isRemoveAll?: boolean;
   localStorageKeys?: string[];
-  pathname?: string;
 }
 
-export const filterData = (data: ICrossStorage) => {
+export const filterData = (data: IPostLocalStorage) => {
   const infoObj: any = {};
 
   infoObj['localStorageKeys'] = data.localStorageKeys ? data.localStorageKeys : null;
@@ -107,6 +120,7 @@ export const createIframe = (
 export const iframeLoadingSleep = (iframeCount: number) => {
   return new Promise<void>(resolve => {
     const iframeOnLoadCount: number = getIframeOnLoadCount();
+    console.log('>>>', iframeCount, iframeOnLoadCount);
     if (iframeOnLoadCount < iframeCount) {
       setTimeout(async () => {
         resolve(iframeLoadingSleep(iframeCount));
@@ -117,16 +131,30 @@ export const iframeLoadingSleep = (iframeCount: number) => {
   });
 };
 
-export const removeIframes = async (key: string) => {
+export const postLoadingSleep = (postCount: number) => {
+  return new Promise<void>(resolve => {
+    const postLoadCount: number = getPostCount();
+    console.log(postCount, postLoadCount);
+    if (postLoadCount < postCount) {
+      setTimeout(async () => {
+        resolve(postLoadingSleep(postCount));
+      }, 400);
+    } else {
+      return resolve();
+    }
+  });
+};
+
+export const removeIframe = async (key: string) => {
   const iframe = document.getElementById(key) as HTMLIFrameElement;
   iframe?.remove();
 };
 
-export const addPostMessageListener = () => {
+export const addListener = () => {
   window.addEventListener('message', postMessageEventHandler);
 };
 
-const removePostMessageListener = () => {
+export const removeListener = () => {
   window.removeEventListener('message', postMessageEventHandler);
 };
 
@@ -231,7 +259,7 @@ const postMessageEventHandler = (event: MessageEvent) => {
   }
 
   // parent receive (remove iframe, eventListener)
-  if (customEvent.data.status === 'postToParent' && customEvent.data.once) {
+  if (customEvent.data.status === 'postToParent') {
     const domains = customEvent.data.childDomains;
     let isDomain = false;
 
@@ -245,10 +273,14 @@ const postMessageEventHandler = (event: MessageEvent) => {
     // 3차 보안 위협 제거
     if (!isDomain) return;
 
-    // iframe 제거함으로써 렌더링 최적화
-    removeIframes(customEvent.data.key);
-    if (customEvent.data.key === customEvent.data.lastChildKey) {
-      removePostMessageListener();
+    if (customEvent.data.once) {
+      // iframe 제거함으로써 렌더링 최적화
+      removeIframe(customEvent.data.key);
+      if (customEvent.data.key === customEvent.data.lastChildKey) {
+        removeListener();
+      }
+    } else {
+      setPostCount();
     }
   }
 };

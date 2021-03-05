@@ -1,6 +1,6 @@
-import { createIframe, IAddIframes } from "./shared";
+import { createIframe, IOpenIframe } from "./shared";
 
-export const addIframes = async (data: IAddIframes) => {
+export const openIframe = async (data: IOpenIframe) => {
   try {
     const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;
     let parentDomainKey: string = '';
@@ -9,7 +9,7 @@ export const addIframes = async (data: IAddIframes) => {
       if (key === data.parentDomain.split('.')[0]) {
         parentDomainKey = key;
       } else {
-        parentDomainKey = 'root';
+        parentDomainKey = 'main';
       }
     }
 
