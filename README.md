@@ -185,7 +185,8 @@ const localStorageValues: string[] = ['1234', '2345'];
 const setItemResult: IResultMessage = await crossStorage.setItem(localStorageKeys, localStorageValues);
 console.log(setItemResult);
 
-crossStorage.close(); // here
+const closeResult: IResultMessage = crossStorage.close(); // here
+console.log(closeResult);
 ```
 
 

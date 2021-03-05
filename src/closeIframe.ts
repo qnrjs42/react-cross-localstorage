@@ -1,18 +1,38 @@
-import { getDoamins } from "../config/config";
+import { getGuestDomains, IResultMessage, returnError } from "./shared";
 
-export const closeIframe = () => {
-  let parentDomainKey: string = '';
+export const closeIframe = (): IResultMessage => {
+  try {
+    let parentDomainKey: string = '';
+    const guestDomains = getGuestDomains();
 
-  for (const key of Object.keys(getDoamins())) {
-    if (key === document.domain.split('.')[0]) {
-      parentDomainKey = key;
-    } else {
-      parentDomainKey = 'main';
+    const errorMessage: IResultMessage = returnError({
+      guestDomains
+    });
+
+    if (errorMessage.status === 'FAILED') {
+      throw new Error(errorMessage.message);
     }
 
-    if (parentDomainKey === key) continue;
+    for (const key of Object.keys(guestDomains!)) {
+      if (key === document.domain.split('.')[0]) {
+        parentDomainKey = key;
+      } else {
+        parentDomainKey = 'main';
+      }
 
-    const iframe = document.getElementById(key) as HTMLIFrameElement;
-    iframe?.remove();
-  } 
+      if (parentDomainKey === key) continue;
+
+      const iframe = document.getElementById(key) as HTMLIFrameElement;
+      iframe?.remove();
+    }
+    return {
+      status: 'SUCCESS'
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      status: 'FAILED',
+      message: err
+    }
+  }
 }
