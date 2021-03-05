@@ -229,7 +229,7 @@ constructor(props: IProps) {
 ## Step 7. openIframe() (Option)
 
 - openIframe()은 사이트에 들어왔을 때 iframe을 생성하고, localstorage를 공유하고 나서도 계속해서 iframe을 유지시킵니다.
-- "아, 나는 한 번만 쓰고 안 쓸 것이다" 하시는 분들을 위해 `crossStorageOnce()`가 준비되어 있으니 걱정하지 않으셔도 됩니다.
+- "아, 나는 한 번만 쓰고 안 쓸 것이다" 하시는 분들을 위해 `openPostLocalStorageClose()`가 준비되어 있으니 걱정하지 않으셔도 됩니다.
   또한 closeIframe() 할 수도 있습니다.
 
 
