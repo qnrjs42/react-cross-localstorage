@@ -1,3 +1,5 @@
+### made date: 2021.03.04
+
 ```
 1.0.0 up -> good (완성)
 1.0.0 down -> not good (미완성)
@@ -46,29 +48,66 @@ react에서 localstorage를 편하게 공유하기 위해 패키지를 만들었
 
 ### Interface
 
+- interface property
+
+  - parentDomain: 현재 보고 있는 도메인 주소를 할당합니다. (document.domain으로 선언해주세요)
+
+  - childDomains: `Step 4`에서 지정해줬던 크로스 도메인 경로들을 할당합니다.
+
+  - pathname: `Step 2`에서 빈 페이지, 하위 도메인을 슬래쉬까지 선언해주어 할당합니다.
+
+  - reactId?: reactId는 iframe을 생성해주기 위한 최상위 div 태그 `<div id='root'>...</div>`를 가리킵니다.
+
+  - isRemove? : localstorage 제거합니다.
+
+  - isRemoveAll?: localstorage 모두 제거합니다. (true일 때 localStorageKeys, isRemove 생략 가능)
+
+  - localStorageKeys?: localstorage key를 배열로 받습니다.
+
+  - ```ts
+    {
+    	parentDomain: string;
+    	childDomains: {
+    		[key: string]: string;
+    	}
+    	pathname: string;
+    	reactId?: string;
+    	isRemove?: boolean;
+      isRemoveAll?: boolean;
+      localStorageKeys?: string[];
+    }
+    ```
+
+  - 
+
 - IOpenIframe
-  - parentDomain: 현재 보고 있는 도메인 주소를 할당합니다. (document.domain으로 선언해주세요)
-  - childDomains: `Step 4`에서 지정해줬던 크로스 도메인 경로들을 할당합니다.
-  - pathname: `Step 2`에서 빈 페이지, 하위 도메인을 슬래쉬까지 선언해주어 할당합니다.
-  - reactId?: reactId는 iframe을 생성해주기 위한 최상위 div 태그 `<div id='root'>...</div>`를 가리킵니다.
+
+  - parentDomain
+  - childDomains
+  - pathname
+  - reactId?: 
+
 - ICloseIframe
+
+  - parentDomain
+  - childDomains
+
   - parentDomain: 현재 보고 있는 도메인 주소를 할당합니다. (document.domain으로 선언해주세요)
-  - childDomains: `Step 4`에서 지정해줬던 크로스 도메인 경로들을 할당합니다.
-- IPostLocalStorage
-  - parentDomain: 현재 보고 있는 도메인 주소를 할당합니다. (document.domain으로 선언해주세요)
-  - childDomains: `Step 4`에서 지정해줬던 크로스 도메인 경로들을 할당합니다.
-  - pathname: `Step 2`에서 빈 페이지, 하위 도메인을 슬래쉬까지 선언해주어 할당합니다.
-  - isRemove? : localstorage 제거합니다.
-  - isRemoveAll?: localstorage 모두 제거합니다. (true일 때 localStorageKeys, isRemove 생략 가능)
-  - localStorageKeys?: localstorage key를 배열로 받습니다.
+  - childDomains
+  - pathname
+  - isRemove?
+  - isRemoveAll?
+  - localStorageKeys?
+
 - IOpenPostLocalStorageClose
-  - parentDomain: 현재 보고 있는 도메인 주소를 할당합니다. (document.domain으로 선언해주세요)
-  - childDomains: `Step 4`에서 지정해줬던 크로스 도메인 경로들을 할당합니다.
-  - pathname: `Step 2`에서 빈 페이지, 하위 도메인을 슬래쉬까지 선언해주어 할당합니다.
-  - isRemove? : localstorage 제거합니다.
-  - isRemoveAll?: localstorage 모두 제거합니다. (true일 때 localStorageKeys, isRemove 생략 가능)
-  - localStorageKeys?: localstorage key를 배열로 받습니다.
-  - reactId?: reactId는 iframe을 생성해주기 위한 최상위 div 태그 `<div id='root'>...</div>`를 가리킵니다.
+
+  - parentDomain
+  - childDomains
+  - pathname
+  - isRemove?
+  - isRemoveAll?
+  - localStorageKeys?
+  - reactId?
 
 ---
 
@@ -560,4 +599,24 @@ render() {
   )
 }
 ```
+
+---
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@
+
+### 피드백 적극 환영!
+
+### Your Feedback is Very Welcome!
+
+`https://github.com/qnrjs42/react-cross-localstorage/issues`
+
+or
+
+`qnrjs42@gmail.com`
+
+@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
 
