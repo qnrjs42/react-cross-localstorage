@@ -1,4 +1,4 @@
-import { IKeyValueString } from "react-cross-localstorage/dist/shared";
+import { IKeyValueString } from "./shared";
 import { 
   addListener,
   iframeLoadingSleep, 
