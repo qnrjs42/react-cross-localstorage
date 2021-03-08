@@ -154,12 +154,12 @@ import crossStorage, { IResultMessage } from 'react-cross-localstorage';
 
 const localStorageKeys: string[] = ['token', 'uuid'];
 
-const setItemResult: IResultMessage = await const removeItemResult: IResultMessage = await crossStorage.removeItem(localStorageKeys); // here
+const removeItemResult: IResultMessage = await crossStorage.removeItem(localStorageKeys); // here
 console.log(removeItemResult);
 
 or
 
-const setItemResult: IResultMessage = await const removeItemResult: IResultMessage = await crossStorage.removeItem('token'); // here
+const removeItemResult: IResultMessage = await crossStorage.removeItem('token'); // here
 console.log(removeItemResult);
 ```
 
@@ -207,6 +207,8 @@ console.log(closeResult);
 ```
 
 ```tsx
+import crossStorage, { IResultMessage } from 'react-cross-localstorage';
+
 const localStorageKeys: string[] = ['token', 'uuid'];
 const localStorageValues: string[] = ['1234', '2345'];
 
