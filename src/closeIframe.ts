@@ -1,27 +1,22 @@
-import { getGuestDomains } from "./shared";
+import { findKey, getGuestDomains } from "./shared";
 import { returnError } from './returnError';
 import { IResultMessage } from './interface';
 
-export const closeIframe = (): IResultMessage => {
+export const closeIframe = async (): Promise<IResultMessage> => {
   try {
-    let hostDomainKey: string = '';
-    const guestDomains = getGuestDomains();
+    const guestDomains = await getGuestDomains();
 
-    const errorMessage: IResultMessage = returnError({
+    const errorMessage: IResultMessage = await returnError({
       guestDomains
     });
 
     if (errorMessage.status === 'FAILED') {
       throw new Error(errorMessage.message);
     }
+    // set host key
+    const hostDomainKey: string = findKey(guestDomains!);
 
     for (const key of Object.keys(guestDomains!)) {
-      if (key === document.domain.split('.')[0]) {
-        hostDomainKey = key;
-      } else {
-        hostDomainKey = 'main';
-      }
-
       if (hostDomainKey === key) continue;
 
       const iframe = document.getElementById(key) as HTMLIFrameElement;

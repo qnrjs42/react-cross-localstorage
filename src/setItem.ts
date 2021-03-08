@@ -17,10 +17,10 @@ type TValues = string[] | string;
 export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMessage> => {
   try {
     const setLocalStorageInfoObj: IKeyValueString = {};
-    const guestDomains = getGuestDomains();
+    const guestDomains = await getGuestDomains();
     const pathName: string = getPathName();
 
-    const errorMessage = returnError({
+    const errorMessage: IResultMessage = await returnError({
       guestDomains,
       pathName,
       keys,

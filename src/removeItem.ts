@@ -5,7 +5,8 @@ import {
   getGuestDomains, 
   postLoadingSleep, 
   iframePostMessage, 
-  iframeLoadingSleep, 
+  iframeLoadingSleep,
+  findKey, 
 } from "./shared";
 import { returnError } from './returnError';
 import { IResultMessage, IIframePostMessage } from './interface';
@@ -14,11 +15,10 @@ type TKeys = string[] | string;
 
 export const removeItem = async (keys: TKeys): Promise<IResultMessage> => {
   try {
-    let hostDomainKey: string = '';
-    const guestDomains = getGuestDomains();
+    const guestDomains = await getGuestDomains();
     const pathName: string = getPathName();
 
-    const errorMessage: IResultMessage = returnError({
+    const errorMessage: IResultMessage = await returnError({
       guestDomains,
       pathName,
       keys,
@@ -40,13 +40,7 @@ export const removeItem = async (keys: TKeys): Promise<IResultMessage> => {
     }
     
     // compare and set host key
-    for (const key in Object.keys(guestDomains!)) {
-      if (key === document.domain.split('.')[0]) {
-        hostDomainKey = key;
-      } else {
-        hostDomainKey = 'main';
-      }
-    }
+    const hostDomainKey: string = findKey(guestDomains!);
 
     // host localstorage remove
     if (Array.isArray(keys)) {

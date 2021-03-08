@@ -41,7 +41,7 @@ export const resetPathName = (): void => {
   pathName = '';
 }
 
-export const getGuestDomains = (): IKeyValueString | null => {
+export const getGuestDomains = async (): Promise<IKeyValueString | null> => {
   return guestDomains;
 };
 export const setGuestDomains = (_guestDomains: IKeyValueString): void => {

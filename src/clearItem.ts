@@ -13,10 +13,10 @@ import { IResultMessage, IIframePostMessage } from './interface';
 
 export const clear = async (): Promise<IResultMessage> => {
   try {
-    const guestDomains = getGuestDomains();
+    const guestDomains = await getGuestDomains();
     const pathName: string = getPathName();
 
-    const errorMessage: IResultMessage = returnError({
+    const errorMessage: IResultMessage = await returnError({
       guestDomains,
       pathName,
     });

@@ -33,10 +33,10 @@ export const setItemOnce = async (data: IHostInit, keys: TKeys, values: TValues)
     
     const setLocalStorageInfoObj: IKeyValueString = {};
     const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;
-    const guestDomains = getGuestDomains();
+    const guestDomains = await getGuestDomains();
     const pathName: string = getPathName();
 
-    const errorMessage = returnError({
+    const errorMessage: IResultMessage = await returnError({
       guestDomains,
       pathName,
       keys,

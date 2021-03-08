@@ -254,6 +254,12 @@ or
 
 ## Update Note
 
+### 21.03.08 [0.7.0 v]
+
+- close() 시 제대로 iframe이 제거 되지 않는 문제 수정
+- setItemOnce() 시 guestDomains가 제대로 할당 되지 않는 문제 수정
+
+
 ### 21.03.08 [0.6.0 v]
 
 - README, guestDomains 3차 도메인 없는 경우 key가 'main' 필수 추가
@@ -263,4 +269,5 @@ or
 - 에러 처리 파일 분리
 - 인터페이스 파일 분리
 - key 찾는 로직 함수로 분리
-
+- close() 시 제대로 iframe이 제거 되지 않는 문제 수정
+- setItemOnce() 시 guestDomains가 제대로 할당 되지 않는 문제 수정

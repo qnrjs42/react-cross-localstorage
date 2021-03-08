@@ -5,9 +5,9 @@ import {
   setGuestDomains, 
   initialResetSetting, 
 } from "./shared";
-import { IHostInit } from './interface';
+import { IHostInit, IResultMessage } from './interface';
 
-export const hostInit = async (data: IHostInit) => {
+export const hostInit = async (data: IHostInit): Promise<IResultMessage> => {
   try {
     // 전역변수 초기화
     initialResetSetting();
@@ -30,7 +30,14 @@ export const hostInit = async (data: IHostInit) => {
         createIframe(iframe, key, domain, reactId);
       }
     }
+    return {
+      status: 'SUCCESS',
+    }
   } catch (err) {
     console.error(err);
+    return {
+      status: 'FAILED',
+      message: err
+    }
   }
 }

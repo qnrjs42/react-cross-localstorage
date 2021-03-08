@@ -1,6 +1,6 @@
 import { IResultMessage } from "./interface";
 
-export const returnError = (data: any): IResultMessage => {
+export const returnError = async (data: any): Promise<IResultMessage> => {
   let message = '';
   if (data.guestDomains && data.guestDomains === null) {
     message = 'guestDoamins Error. 게스트도메인이 비워져있습니다.';
