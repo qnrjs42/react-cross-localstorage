@@ -1,19 +1,18 @@
-import { 
+import {
+  findKey,
   addListener,
-  iframeLoadingSleep, 
-  iframePostMessage, 
-  resetPostCount, 
-  postLoadingSleep, 
-  getGuestDomains, 
   getPathName, 
-  IIframePostMessage,
-  returnError,
-  IResultMessage,
+  resetPostCount, 
+  getGuestDomains, 
+  postLoadingSleep, 
+  iframePostMessage, 
+  iframeLoadingSleep, 
 } from "./shared";
+import { returnError } from './returnError';
+import { IResultMessage, IIframePostMessage } from './interface';
 
 export const clear = async (): Promise<IResultMessage> => {
   try {
-    let hostDomainKey: string = '';
     const guestDomains = getGuestDomains();
     const pathName: string = getPathName();
 
@@ -38,13 +37,7 @@ export const clear = async (): Promise<IResultMessage> => {
     }
     
     // compare and set host key
-    for (const key in Object.keys(guestDomains!)) {
-      if (key === document.domain.split('.')[0]) {
-        hostDomainKey = key;
-      } else {
-        hostDomainKey = 'main';
-      }
-    }
+    const hostDomainKey: string = findKey(guestDomains!);
 
     // host localstorage remove
     localStorage.clear();

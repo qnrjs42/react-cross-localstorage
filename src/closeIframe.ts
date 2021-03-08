@@ -1,8 +1,10 @@
-import { getGuestDomains, IResultMessage, returnError } from "./shared";
+import { getGuestDomains } from "./shared";
+import { returnError } from './returnError';
+import { IResultMessage } from './interface';
 
 export const closeIframe = (): IResultMessage => {
   try {
-    let parentDomainKey: string = '';
+    let hostDomainKey: string = '';
     const guestDomains = getGuestDomains();
 
     const errorMessage: IResultMessage = returnError({
@@ -15,12 +17,12 @@ export const closeIframe = (): IResultMessage => {
 
     for (const key of Object.keys(guestDomains!)) {
       if (key === document.domain.split('.')[0]) {
-        parentDomainKey = key;
+        hostDomainKey = key;
       } else {
-        parentDomainKey = 'main';
+        hostDomainKey = 'main';
       }
 
-      if (parentDomainKey === key) continue;
+      if (hostDomainKey === key) continue;
 
       const iframe = document.getElementById(key) as HTMLIFrameElement;
       iframe?.remove();

@@ -1,9 +1,17 @@
+import { 
+  IResultMessage,
+  IKeyValueString, 
+  INewMessageEvent, 
+  IMessageEventData, 
+  IIframePostMessage, 
+} from "./interface";
+
 let iframeOnLoadCount = 0;
 let postCount = 0;
 let guestDomains: IKeyValueString | null = null;
 let pathName = '';
 
-export const getIframeOnLoadCount = () => {
+export const getIframeOnLoadCount = (): number => {
   return iframeOnLoadCount;
 };
 export const setIframeOnLoadCount = (): void => {
@@ -33,13 +41,13 @@ export const resetPathName = (): void => {
   pathName = '';
 }
 
-export const getGuestDomains = () => {
+export const getGuestDomains = (): IKeyValueString | null => {
   return guestDomains;
 };
-export const setGuestDomains = (_guestDomains: IKeyValueString) => {
+export const setGuestDomains = (_guestDomains: IKeyValueString): void => {
   guestDomains = _guestDomains;
 };
-export const resetGuestDomains = () => {
+export const resetGuestDomains = (): void => {
   guestDomains = null;
 }
 
@@ -50,110 +58,13 @@ export const initialResetSetting = () => {
   resetGuestDomains();
 }
 
-
-export interface IKeyValueString {
-  [key: string]: string;
-}
-
-interface IBase {
-  hostDomain: string;
-  guestDomains: IKeyValueString;
-}
-
-interface IPublic extends IBase {
-  pathName: string;
-}
-
-export interface IPostLocalStorage extends IPublic {
-  isRemove?: boolean;
-  isRemoveAll?: boolean;
-  localStorageKeys?: string[];
-}
-
-export interface IOpenPostLocalStorageClose extends IPostLocalStorage {
-  reactId?: string;
-}
-
-export interface IHostInit {
-  guestDomains: IKeyValueString;
-  pathName: string;
-  reactId?: string;
-}
-
-export interface IResultMessage {
-  status: 'SUCCESS' | 'FAILED';
-  message?: string;
-}
-
-interface IMessageEventData {
-  status: 'postToHost' | 'postToGuest' | 'removeToGuest';
-  key: string;
-  lastGuestKey: string;
-  hostDomain: string;
-  guestDomain: string;
-  guestDomains: IKeyValueString;
-  once? : boolean;
-  isRemoveAll?: boolean;
-  setLocalStorageInfoObj?: IKeyValueString;
-  removeLocalStorageInfo?: string[] | string;
-  pathName?: string;
-}
-interface INewMessageEvent extends MessageEvent {
-  target: Window;
-  source: WindowProxy;
-  data: IMessageEventData;
-}
-
-export interface IIframePostMessage {
-  key: string;
-  hostDomain: string;
-  guestDomain: string;
-  guestDomains: IKeyValueString;
-  lastGuestKey: string;
-  setLocalStorageInfoObj?: IKeyValueString;
-  removeLocalStorageInfo?: string[] | string;
-  isRemoveAll?: boolean;
-}
-
-export const returnError = (data: any): IResultMessage => {
-  let message = '';
-  if (data.guestDomains && data.guestDomains == null) {
-    message = 'guestDoamins Error. 게스트도메인이 비워져있습니다.';
-  }
-  if (data.pathName && data.pathName === '') {
-    message = 'pathName Error. pathName이 비워져있습니다.';
-  }
-  if (data.keys && (data.keys.length === 0 || data.keys === '')) {
-    message = 'Key Error. key가 비워져있습니다.';
-  }
-  if (data.values && (data.values.length === 0 || data.values === '')) {
-    message = 'Value Error. Value가 비워져있습니다.';
-  }
-  if (data.keys && (typeof data.keys === 'string' && Array.isArray(data.values))) {
-    message = 'Value Error. Key보다 Value가 더 많습니다';
-  }
-  if (data.values &&  (typeof data.values === 'string' && Array.isArray(data.keys))) {
-    message = 'Key Error. Value보다 Key가 더 많습니다';
-  }
-
-  if (message !== '') {
-    return {
-      status: 'FAILED',
-      message,
-    }
-  }
-  return {
-    status: 'SUCCESS',
-  }
-};
-
 export const createIframe = (
   iframe: HTMLIFrameElement,
   key: string,
   domain: string,
   reactId: string,
   postMessageObj?: IIframePostMessage,
-) => {
+): void => {
   iframe = document.createElement('iframe');
   iframe.setAttribute('id', key);
   iframe.setAttribute('title', key);
@@ -167,7 +78,7 @@ export const createIframe = (
       iframePostMessage(postMessageObj, true);
     }
     setIframeOnLoadCount();
-  }, 
+  },
     {once: true}
   );
 }
@@ -216,20 +127,29 @@ export const postLoadingSleep = (postCount: number, failedCount: number = 0) => 
   });
 };
 
-export const removeIframe = async (key: string) => {
+export const findKey = (_guestDomains: IKeyValueString): string => {
+  for (const key of Object.keys(_guestDomains!)) {
+    if (key === document.domain.split('.')[0]) {
+      return key;
+    }
+  }
+  return 'main';
+}
+
+export const removeIframe = async (key: string): Promise<void> => {
   const iframe = document.getElementById(key) as HTMLIFrameElement;
   iframe?.remove();
 };
 
-export const addListener = () => {
+export const addListener = (): void => {
   window.addEventListener('message', postMessageEventHandler);
 };
 
-export const removeListener = () => {
+export const removeListener = (): void => {
   window.removeEventListener('message', postMessageEventHandler);
 };
 
-export const iframePostMessage = (data: IIframePostMessage, once: boolean = false) => {
+export const iframePostMessage = (data: IIframePostMessage, once: boolean = false): void => {
   const postData: IMessageEventData = {
     status: 'postToGuest',
     key: data.key,
@@ -272,7 +192,7 @@ export const iframePostMessage = (data: IIframePostMessage, once: boolean = fals
   iframe.contentWindow?.postMessage(postData, data.guestDomain);
 };
 
-const postMessageEventHandler = (event: MessageEvent) => {
+const postMessageEventHandler = (event: MessageEvent): void => {
   const customEvent = event as INewMessageEvent;
 
   // guest receive (set localstorage)
@@ -361,8 +281,7 @@ const postMessageEventHandler = (event: MessageEvent) => {
       if (customEvent.data.key === customEvent.data.lastGuestKey) {
         removeListener();
       }
-    } else {
-      setPostCount();
     }
+    setPostCount();
   }
 };

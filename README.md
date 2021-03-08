@@ -48,6 +48,7 @@ But, It could take a long time.
 ### 0. set guest domains
 
 - 하위 도메인들 경로를 지정해줍니다.
+- 3차 도메인이 없는 경우 무조건 키 값을 'main'으로 지정합니다.
 
 ```ts
 // configs/config.ts
@@ -79,6 +80,7 @@ componentDidMount() {
   const hostInitData: IHostInit = {
     guestDomains: getDoamins(),
     pathName: '/only-local', // sub domain name
+    reactId: 'root' // options (react root id tag)
   }
   crossStorage.hostInit(hostInitData); // here
 }
@@ -114,6 +116,10 @@ constructor(props: IProps) {
 import crossStorage from 'react-cross-localstorage';
 
 console.log(crossStorage.getItem('token'));
+
+or
+
+console.log(crossStorage.getItem(['token', 'uuid']));
 ```
 
 
@@ -191,6 +197,39 @@ console.log(closeResult);
 
 
 
+### 8. setItemOnce
+
+- hostInit + setItem + close를 한 번에 처리합니다.
+
+```tsx
+// src/App.tsx
+// crossStorage.hostInit(hostInitData); // here
+```
+
+```tsx
+const localStorageKeys: string[] = ['token', 'uuid'];
+const localStorageValues: string[] = ['1234', '2345'];
+
+// const setItemResult: IResultMessage = await crossStorage.setItem(localStorageKeys, localStorageValues); // here
+
+// const closeResult: IResultMessage = crossStorage.close(); // here
+
+const hostInitData: IHostInit = {
+  guestDomains: getDoamins(),
+  pathName: '/only-local',
+  reactId: 'root' // options (react root id tag)
+}
+
+const setItemOnceResult: IResultMessage = await crossStorage.setItemOnce(
+  hostInitData, 
+  localStorageKeys, 
+  localStorageValues
+); // here
+console.log(setItemOnceResult);
+```
+
+
+
 ---
 
 
@@ -210,4 +249,16 @@ or
 @@@@@@@@@@@@@@@@@@@@@@@@@
 
 
+
+## Update Note
+
+### 21.03.08 [0.6.0 v]
+
+- README, guestDomains 3차 도메인 없는 경우 key가 'main' 필수 추가
+- README, getItem 배열 예제 추가
+- key가 계속 main으로 지정되는 버그 수정
+- setItemOnce 기능 추가
+- 에러 처리 파일 분리
+- 인터페이스 파일 분리
+- key 찾는 로직 함수로 분리
 

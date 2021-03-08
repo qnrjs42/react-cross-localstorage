@@ -1,22 +1,38 @@
-import {
+import { 
   findKey,
   addListener,
   getPathName, 
+  setPathName,
+  createIframe,
   resetPostCount, 
   getGuestDomains, 
+  setGuestDomains, 
   postLoadingSleep, 
-  iframePostMessage, 
-  iframeLoadingSleep, 
+  initialResetSetting, 
 } from "./shared";
 import { returnError } from './returnError';
-import { IResultMessage, IIframePostMessage, IKeyValueString } from './interface';
+import { 
+  IHostInit,
+  IResultMessage,
+  IKeyValueString,
+  IIframePostMessage,
+} from './interface';
+
 
 type TKeys = string[] | string;
 type TValues = string[] | string;
 
-export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMessage> => {
+export const setItemOnce = async (data: IHostInit, keys: TKeys, values: TValues): Promise<IResultMessage> => {
   try {
+    // 전역변수 초기화
+    initialResetSetting();
+
+    // 전역변수 할당
+    setGuestDomains(data.guestDomains);
+    setPathName(data.pathName);
+    
     const setLocalStorageInfoObj: IKeyValueString = {};
+    const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;
     const guestDomains = getGuestDomains();
     const pathName: string = getPathName();
 
@@ -35,15 +51,10 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
     const lastGuestKey: string = Object.keys(guestDomains!)[domainsCount];
 
     addListener();
-    resetPostCount(); // 이전에 post 요청 초기화
-    const iframeLoadMessage: IResultMessage = await iframeLoadingSleep(domainsCount);
-
-    if (iframeLoadMessage.status === 'FAILED') {
-      throw new Error(iframeLoadMessage.message);
-    }
+    resetPostCount();
     
     // compare and set host key
-    const hostDomainKey: string = findKey(guestDomains!).trim();
+    const hostDomainKey: string = findKey(data.guestDomains);
 
     // host localstorage set
     if (Array.isArray(keys) && Array.isArray(values)) {
@@ -59,6 +70,8 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
     for (const [key, domain] of Object.entries(guestDomains!)) {
       if (hostDomainKey === key) continue;
 
+      const iframe = document.getElementById(key) as HTMLIFrameElement;
+
       const stringDomain: string = domain as string;
       const guestDomain: string = stringDomain.split(pathName)[0];
       const postMessageObj: IIframePostMessage = {
@@ -69,7 +82,10 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
         lastGuestKey, 
         setLocalStorageInfoObj,
       };
-      iframePostMessage(postMessageObj);
+      // iframe이 기존에 없으면 생성
+      if (iframe === null) {
+        createIframe(iframe, key, domain, reactId, postMessageObj);
+      }
     }
     await postLoadingSleep(domainsCount);
     return {

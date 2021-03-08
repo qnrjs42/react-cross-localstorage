@@ -1,15 +1,14 @@
 import { 
   addListener,
-  iframeLoadingSleep, 
-  iframePostMessage, 
-  resetPostCount, 
-  postLoadingSleep, 
-  getGuestDomains, 
   getPathName, 
-  IIframePostMessage,
-  returnError,
-  IResultMessage,
+  resetPostCount, 
+  getGuestDomains, 
+  postLoadingSleep, 
+  iframePostMessage, 
+  iframeLoadingSleep, 
 } from "./shared";
+import { returnError } from './returnError';
+import { IResultMessage, IIframePostMessage } from './interface';
 
 type TKeys = string[] | string;
 

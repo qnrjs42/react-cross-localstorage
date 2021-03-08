@@ -1,4 +1,3 @@
-
 export const getItem = (keys: string[] | string): string[] | string => {
   const localStorageArr: string[] = [];
 

@@ -4,7 +4,7 @@ import {
   Route,
   Link,
 } from "react-router-dom";
-import { IOpenIframe, openIframe, addListener } from 'react-cross-localstorage';
+import crossStorage, { IHostInit } from 'react-cross-localstorage';
 
 import About from './components/about';
 import OnlyLocal from './components/only-local';
@@ -25,7 +25,7 @@ class App extends Component<IProps, IState> {
     }
 
     if (window.location.pathname === '/only-local') {
-      addListener();
+      crossStorage.guestInit();
       return;
     }
   }
@@ -35,12 +35,11 @@ class App extends Component<IProps, IState> {
       return;
     }
 
-    const openIframesData: IOpenIframe = {
-      parentDomain: document.domain,
-      childDomains: getDoamins(),
-      pathname: '/only-local',
+    const hostInitData: IHostInit = {
+      guestDomains: getDoamins(),
+      pathName: '/only-local',
     }
-    openIframe(openIframesData);
+    crossStorage.hostInit(hostInitData);
   }
 
   render() {

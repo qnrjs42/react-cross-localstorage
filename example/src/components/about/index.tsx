@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
-import { closeIframe, openPostLocalStorageClose, postLocalStorage, IPostLocalStorage, IOpenPostLocalStorageClose } from 'react-cross-localstorage';
 
 import { getDoamins } from '../../config/config';
+import crossStorage, { IHostInit, IResultMessage } from 'react-cross-localstorage';
+
+const sleep = () => {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, 1500);
+  })
+};
 
 interface IProps {}
 interface IState {
@@ -20,28 +28,23 @@ class About extends Component<IProps, IState> {
     }
   }
 
-  onClickCreateLocalStorage = () => {
-    localStorage.setItem('token', '1234');
-    localStorage.setItem('uuid', '2345');
-  }
+  onClickGetLocalStorage = () => {
+    console.log(crossStorage.getItem('token'));
+    console.log(crossStorage.getItem(['token', 'uuid']));
+  };
 
-  onClickPostLocalStorage = async () => {
+  onClickSetItem = async () => {
     this.setState({
       isLoading: true,
       isDone: false,
     });
     const localStorageKeys: string[] = ['token', 'uuid'];
+    const localStorageValues: string[] = ['1234', '2345'];
 
-    const postData: IPostLocalStorage = {
-      localStorageKeys,
-      pathname: '/only-local',
-      parentDomain: document.domain,
-      childDomains: getDoamins(),
-      isRemove: false,
-    };
+    const setItemResult: IResultMessage = await crossStorage.setItem(localStorageKeys, localStorageValues);
+    console.log(setItemResult);
 
-    await postLocalStorage(postData);
-    closeIframe(document.domain, getDoamins());
+    // crossStorage.close();
 
     this.setState({
       isLoading: false,
@@ -50,24 +53,29 @@ class About extends Component<IProps, IState> {
     console.log('전송 완료!');
   };
 
-  onClickOpenPostLocalStorageClose = async () => {
+  onClickSetItemOnce = async () => {
     this.setState({
       isLoading: true,
       isDone: false,
     });
     const localStorageKeys: string[] = ['token', 'uuid'];
+    const localStorageValues: string[] = ['1234', '2345'];
 
-    const postData: IOpenPostLocalStorageClose = {
-      reactId: 'root',
-      localStorageKeys,
-      pathname: '/only-local',
-      parentDomain: document.domain,
-      childDomains: getDoamins(),
-      isRemove: false,
-      // isRemoveAll: true,
-    };
+    const hostInitData: IHostInit = {
+      guestDomains: getDoamins(),
+      pathName: '/only-local',
+    }
 
-    await openPostLocalStorageClose(postData);
+    crossStorage.close();
+
+    await sleep();
+
+    const setItemOnceResult: IResultMessage = await crossStorage.setItemOnce(
+      hostInitData, 
+      localStorageKeys, 
+      localStorageValues
+    );
+    console.log(setItemOnceResult);
 
     this.setState({
       isLoading: false,
@@ -83,18 +91,23 @@ class About extends Component<IProps, IState> {
     });
     const localStorageKeys: string[] = ['token'];
 
-    const postData: IPostLocalStorage = {
-      // localStorageKeys,
-      pathname: '/only-local',
-      parentDomain: document.domain,
-      childDomains: getDoamins(),
-      // isRemove: true,
-      isRemoveAll: true,
-    };
+    const removeItemResult: IResultMessage = await crossStorage.removeItem(localStorageKeys);
+    console.log(removeItemResult);
 
-    const result = await postLocalStorage(postData);
-    
-    console.log(result);
+    this.setState({
+      isLoading: false,
+      isDone: true,
+    });
+    console.log('제거 완료!');
+  };
+
+  onClickRemoveAll = async () => {
+    this.setState({
+      isLoading: true,
+      isDone: false,
+    });
+    const removeItemResult: IResultMessage = await crossStorage.clear();
+    console.log(removeItemResult);
 
     this.setState({
       isLoading: false,
@@ -107,12 +120,13 @@ class About extends Component<IProps, IState> {
     return (
       <div>
         <div>
-          <button onClick={this.onClickCreateLocalStorage}>localstorage create!</button>
-          <button onClick={this.onClickPostLocalStorage}>localstorage share!</button>
+          <button onClick={this.onClickSetItem}>localstorage share!</button>
           <button onClick={this.onClickRemove}>localstorage remove!</button>
+          <button onClick={this.onClickRemoveAll}>localstorage removeAll!</button>
         </div>
         <div>
-        <button onClick={this.onClickOpenPostLocalStorageClose}>localstorage share once!</button>
+          <button onClick={this.onClickSetItemOnce}>localstorage share once!</button>
+          <button onClick={this.onClickGetLocalStorage}>localstorage get!</button>
         </div>
         {this.state.isDone && (
           <div>완료</div>
