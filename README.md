@@ -30,7 +30,7 @@ and then, Email send me or create Issue!!!
 
 `https://github.com/qnrjs42/react-cross-localstorage/issues`
 
-<br/><br/>
+<br/>
 
 ## 특징
 
@@ -46,7 +46,7 @@ and then, Email send me or create Issue!!!
 - 편합니다.<br/>
   It is So easy and Awesome.
 
-<br/><br/>
+<br/>
 
 ## Quick Start
 
@@ -144,7 +144,7 @@ console.log(setItemResult);
 
 
 
-### setItems(ISetItem)
+### setItems(ISetItems)
 
 - localstorage를 생성합니다.<br/>
   Set localstorage.
@@ -371,7 +371,7 @@ or
 
 - README init 설명 수정
 
-### 21.03.10 [0.8.2 v]
+### 21.03.10 [0.8.1 v]
 
 - README 설명 수정
 
