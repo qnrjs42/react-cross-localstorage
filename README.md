@@ -30,7 +30,7 @@ and then, Email send me or create Issue!!!
 
 `https://github.com/qnrjs42/react-cross-localstorage/issues`
 
----
+<br/><br/>
 
 ## 특징
 
@@ -46,7 +46,7 @@ and then, Email send me or create Issue!!!
 - 편합니다.<br/>
   It is So easy and Awesome.
 
----
+<br/><br/>
 
 ## Quick Start
 
@@ -57,6 +57,7 @@ and then, Email send me or create Issue!!!
   **도메인의 경로는 동일한 경로이어야 합니다.**<br/>
   You should set domain(with host, guest).<br/>
   **All domain must be same path.**
+
 - **3차 도메인이 없는 경우 무조건 키 값을 'main'으로 지정합니다.**<br/>
   **If tertiary domain is none and then, you have to put in 'main' key.**
 
@@ -90,11 +91,12 @@ import crossStorage, { IInit } from 'react-cross-localstorage';
 import { getDoamins } from './config/config';
 
 componentDidMount() {
-  const initData: IResultMessage = crossStorage.init({
-  	guestDomains: getDoamins(),
+  const initData: IInit = {
+    guestDomains: getDoamins(),
     reactId: 'root' // options (react DOM root id tag)
-	});
-  crossStorage.init(initData); // here
+  }
+  const initResult: IResultMessage = crossStorage.init(initData); // here
+  console.log(initResult); 
 }
 ```
 
@@ -156,7 +158,7 @@ const setItemsData: ISetItems = {
 }
 
 const setItemsResult: IResultMessage = await crossStorage.setItems(setItemsData); // here
-console.log(setItemsResult)
+console.log(setItemsResult);
 ```
 
 
@@ -221,9 +223,7 @@ const closeResult: IResultMessage = crossStorage.close(); // here
 console.log(closeResult);
 ```
 
-
-
----
+<br/><br/>
 
 ## Async Description
 
@@ -363,11 +363,15 @@ or
 
 @@@@@@@@@@@@@@@@@@@@@@@@@
 
-
+<br/>
 
 ## Update Note
 
-### 21.03.10 [0.8.1 v]
+### 21.03.10 [0.8.2 v]
+
+- README init 설명 수정
+
+### 21.03.10 [0.8.2 v]
 
 - README 설명 수정
 
