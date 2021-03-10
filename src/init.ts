@@ -1,19 +1,32 @@
 import { 
   findKey,
+  addListener,
   setPathName, 
   createIframe, 
+  findPathName,
   setGuestDomains, 
-  initialResetSetting, 
+  initialResetSetting,
 } from "./shared";
-import { IHostInit, IResultMessage } from './interface';
+import { IInit, IResultMessage } from './interface';
 
-export const hostInit = async (data: IHostInit): Promise<IResultMessage> => {
+export const init = (data: IInit): IResultMessage => {
   try {
+    // 도메인 경로 탐색
+    const guestPathName: string = findPathName(Object.values(data.guestDomains)[0]);
+
+    // 게스트라면 리스너만 추가하고 나감
+    if (window.location.pathname === guestPathName) {
+      addListener();
+      return {
+        status: 'GUEST',
+      }
+    }
+
     // 전역변수 초기화
     initialResetSetting();
 
     // 전역변수 할당
-    setPathName(data.pathName);
+    setPathName(guestPathName);
     setGuestDomains(data.guestDomains);
 
     const reactId: string = data.reactId ? data.reactId : document.querySelectorAll('div')[0].id;

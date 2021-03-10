@@ -1,28 +1,31 @@
-import { getItem } from './getItem';
-import { setItem } from './setItem';
 import { clear } from './clearItem';
-import { hostInit } from './hostInit';
+import { init } from './init';
 import { removeItem } from './removeItem';
 import { closeIframe } from './closeIframe';
-import { setItemOnce } from './setItemOnce';
+import { getItem, getItems } from './getItem';
+import { setItem, setItems } from './setItem';
 import { addListener as guestInit } from './shared';
 
-export { getItem } from './getItem';
-export { setItem } from './setItem';
 export { clear } from './clearItem';
-export { hostInit } from './hostInit';
+export { init } from './init';
 export { removeItem } from './removeItem';
-export { setItemOnce } from './setItemOnce';
+export { getItem, getItems } from './getItem';
+export { setItem, setItems } from './setItem';
 export { addListener as guestInit } from './shared';
 export { closeIframe as close } from './closeIframe';
-export type { IResultMessage, IHostInit } from './interface';
+export type { 
+  IInit,
+  IResultMessage,
+  IKeyValueString as ISetItems,
+} from './interface';
 
 const crossLocalstorage = {
-  hostInit,
+  init,
   guestInit,
   getItem,
+  getItems,
   setItem,
-  setItemOnce,
+  setItems,
   removeItem,
   clear,
   close: closeIframe,

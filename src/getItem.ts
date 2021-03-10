@@ -1,4 +1,11 @@
-export const getItem = (keys: string[] | string): string[] | string => {
+export const getItem = (keys: string): string => {
+  if (localStorage.getItem(keys)) {
+    return localStorage.getItem(keys)!;
+  }
+  return '';
+};
+
+export const getItems = (keys: string[]): string[] => {
   const localStorageArr: string[] = [];
 
   if (Array.isArray(keys)) {
@@ -10,8 +17,6 @@ export const getItem = (keys: string[] | string): string[] | string => {
       }
       return true;
     });
-    return localStorageArr;
-  } else {
-    return localStorage.getItem(keys)!;
-  }
+  } 
+  return localStorageArr;
 };

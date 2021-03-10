@@ -44,6 +44,9 @@ export const resetPathName = (): void => {
 export const getGuestDomains = async (): Promise<IKeyValueString | null> => {
   return guestDomains;
 };
+export const getGuestDomainsSync = (): IKeyValueString | null => {
+  return guestDomains;
+};
 export const setGuestDomains = (_guestDomains: IKeyValueString): void => {
   guestDomains = _guestDomains;
 };
@@ -105,6 +108,29 @@ export const iframeLoadingSleep = (iframeCount: number, failedCount: number = 0)
   });
 };
 
+export const iframeLoadingSleepSync = (
+  iframeCount: number, 
+  failedCount: number = 0
+): any => {
+  if (failedCount >= 10) {
+    return {
+      status: 'FAILED',
+      message: 'Iframe Error. Iframe Load Failed.',
+    };
+  } 
+  const _iframeOnLoadCount: number = getIframeOnLoadCount();
+  if (_iframeOnLoadCount < iframeCount) {
+    setTimeout(async() => {
+      console.log('tr');
+      return iframeLoadingSleepSync(iframeCount, failedCount++);
+    }, 400);
+  } else {
+    return {
+      status: 'SUCCESS',
+    };
+  }
+};
+
 export const postLoadingSleep = (postCount: number, failedCount: number = 0) => {
   return new Promise<IResultMessage>((resolve, reject) => {
     if (failedCount >= 10) {
@@ -134,6 +160,19 @@ export const findKey = (_guestDomains: IKeyValueString): string => {
     }
   }
   return 'main';
+}
+
+export const findPathName = (_guestDomain: string) => {
+  const pathNameArr = _guestDomain.split('/').slice(3);
+  if (pathNameArr.length !== 0) {
+    let appendPathName = '';
+
+    pathNameArr.map((path: string) => {
+      return appendPathName += `/${path}`;
+    });
+    return appendPathName;
+  }
+  return '/';
 }
 
 export const removeIframe = async (key: string): Promise<void> => {

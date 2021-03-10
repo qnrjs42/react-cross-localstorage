@@ -21,14 +21,13 @@ export interface IOpenPostLocalStorageClose extends IPostLocalStorage {
   reactId?: string;
 }
 
-export interface IHostInit {
+export interface IInit {
   guestDomains: IKeyValueString;
-  pathName: string;
   reactId?: string;
 }
 
 export interface IResultMessage {
-  status: 'SUCCESS' | 'FAILED';
+  status: 'SUCCESS' | 'FAILED' | 'GUEST';
   message?: string;
 }
 

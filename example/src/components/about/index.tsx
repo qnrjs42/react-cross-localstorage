@@ -1,15 +1,5 @@
 import React, { Component } from 'react';
-
-import { getDoamins } from '../../config/config';
-import crossStorage, { IHostInit, IResultMessage } from 'react-cross-localstorage';
-
-const sleep = () => {
-  return new Promise<void>(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, 1500);
-  })
-};
+import crossStorage, { ISetItems, IResultMessage } from 'react-cross-localstorage';
 
 interface IProps {}
 interface IState {
@@ -28,9 +18,12 @@ class About extends Component<IProps, IState> {
     }
   }
 
-  onClickGetLocalStorage = () => {
-    console.log(crossStorage.getItem('token'));
-    console.log(crossStorage.getItem(['token', 'uuid']));
+  onClickGetItem = () => {
+    const item: string | null = crossStorage.getItem('tokenKey');
+    console.log(item);
+
+    const items: string[] | null = crossStorage.getItems(['tokenKey', 'uuidKey']);
+    console.log(items); 
   };
 
   onClickSetItem = async () => {
@@ -38,12 +31,22 @@ class About extends Component<IProps, IState> {
       isLoading: true,
       isDone: false,
     });
-    const localStorageKeys: string[] = ['token', 'uuid'];
-    const localStorageValues: string[] = ['1234', '2345'];
+    const setItemsData: ISetItems = {
+      tokenKey: 'tokenValue',
+      uuidKey: 'uuidValue',
+    }
 
-    const setItemResult: IResultMessage = await crossStorage.setItem(localStorageKeys, localStorageValues);
-    console.log(setItemResult);
+    // crossStorage.setItems(setItemsData)
+    // .then((setItemResult: IResultMessage) => {
+    //   console.log(setItemResult);
+    // });
 
+    const setItemsResult: IResultMessage = await crossStorage.setItems(setItemsData);
+    console.log(setItemsResult);
+
+    // const setItemResult: IResultMessage = await crossStorage.setItem('tokenKey', 'tokenValue');
+    // console.log(setItemResult);
+    
     // crossStorage.close();
 
     this.setState({
@@ -53,43 +56,17 @@ class About extends Component<IProps, IState> {
     console.log('전송 완료!');
   };
 
-  onClickSetItemOnce = async () => {
-    this.setState({
-      isLoading: true,
-      isDone: false,
-    });
-    const localStorageKeys: string[] = ['token', 'uuid'];
-    const localStorageValues: string[] = ['1234', '2345'];
-
-    const hostInitData: IHostInit = {
-      guestDomains: getDoamins(),
-      pathName: '/only-local',
-    }
-
-    crossStorage.close();
-
-    await sleep();
-
-    const setItemOnceResult: IResultMessage = await crossStorage.setItemOnce(
-      hostInitData, 
-      localStorageKeys, 
-      localStorageValues
-    );
-    console.log(setItemOnceResult);
-
-    this.setState({
-      isLoading: false,
-      isDone: true,
-    });
-    console.log('한 번만 전송 완료!');
-  };
-
   onClickRemove = async () => {
     this.setState({
       isLoading: true,
       isDone: false,
     });
-    const localStorageKeys: string[] = ['token'];
+    const localStorageKeys: string[] = ['tokenKey'];
+
+    // crossStorage.removeItem(localStorageKeys)
+    // .then((removeResult) => {
+    //   console.log(removeResult);
+    // });
 
     const removeItemResult: IResultMessage = await crossStorage.removeItem(localStorageKeys);
     console.log(removeItemResult);
@@ -106,6 +83,12 @@ class About extends Component<IProps, IState> {
       isLoading: true,
       isDone: false,
     });
+
+    // crossStorage.clear()
+    // .then((clearResult: IResultMessage) => {
+    //   console.log(clearResult);
+    // });
+
     const removeItemResult: IResultMessage = await crossStorage.clear();
     console.log(removeItemResult);
 
@@ -125,8 +108,7 @@ class About extends Component<IProps, IState> {
           <button onClick={this.onClickRemoveAll}>localstorage removeAll!</button>
         </div>
         <div>
-          <button onClick={this.onClickSetItemOnce}>localstorage share once!</button>
-          <button onClick={this.onClickGetLocalStorage}>localstorage get!</button>
+          <button onClick={this.onClickGetItem}>localstorage get!</button>
         </div>
         {this.state.isDone && (
           <div>완료</div>

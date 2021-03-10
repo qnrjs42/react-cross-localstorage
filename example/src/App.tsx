@@ -4,11 +4,19 @@ import {
   Route,
   Link,
 } from "react-router-dom";
-import crossStorage, { IHostInit } from 'react-cross-localstorage';
+import crossStorage, { IResultMessage } from 'react-cross-localstorage';
 
 import About from './components/about';
-import OnlyLocal from './components/only-local';
 import { getDoamins } from './config/config';
+import OnlyLocal from './components/only-local';
+
+const sleep = (count: number) => {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, count * 1000);
+  })
+};
 
 interface IProps {}
 interface IState {
@@ -25,21 +33,19 @@ class App extends Component<IProps, IState> {
     }
 
     if (window.location.pathname === '/only-local') {
-      crossStorage.guestInit();
       return;
     }
   }
 
-  componentDidMount() {
-    if (window.location.pathname === '/only-local') {
+  async componentDidMount() {
+    const initResult: IResultMessage = crossStorage.init({
+      guestDomains: getDoamins(),
+    });
+    if (initResult.status === 'GUEST') {
       return;
     }
 
-    const hostInitData: IHostInit = {
-      guestDomains: getDoamins(),
-      pathName: '/only-local',
-    }
-    crossStorage.hostInit(hostInitData);
+    console.log('iframe 생성 완료');
   }
 
   render() {

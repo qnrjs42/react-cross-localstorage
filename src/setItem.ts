@@ -11,20 +11,44 @@ import {
 import { returnError } from './returnError';
 import { IResultMessage, IIframePostMessage, IKeyValueString } from './interface';
 
-type TKeys = string[] | string;
-type TValues = string[] | string;
-
-export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMessage> => {
+export const setItem = async (key: string, value: string): Promise<IResultMessage> => {
   try {
-    const setLocalStorageInfoObj: IKeyValueString = {};
-    const guestDomains = await getGuestDomains();
+    const result: IResultMessage = await baseSetItem({[key]: value});
+    if (result.status === 'FAILED') throw result;
+
+    return {
+      status: 'SUCCESS'
+    };
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const setItems = async (dataObj: IKeyValueString): Promise<IResultMessage> => {
+  try {
+    const result: IResultMessage = await baseSetItem(dataObj);
+    if (result.status === 'FAILED') throw result;
+    
+    return {
+      status: 'SUCCESS'
+    };
+  } catch (err) {
+    console.error(err.message);
+    return err;
+  }
+};
+
+const baseSetItem = async (dataObj: IKeyValueString): Promise<IResultMessage> => {
+  try {
     const pathName: string = getPathName();
+    const guestDomains = await getGuestDomains();
 
     const errorMessage: IResultMessage = await returnError({
-      guestDomains,
+      keys: Object.keys(dataObj),
+      values: Object.values(dataObj),
       pathName,
-      keys,
-      values
+      guestDomains,
     });
 
     if (errorMessage.status === 'FAILED') {
@@ -46,14 +70,8 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
     const hostDomainKey: string = findKey(guestDomains!).trim();
 
     // host localstorage set
-    if (Array.isArray(keys) && Array.isArray(values)) {
-      for (let i = 0; i < keys.length; i++) {
-        localStorage.setItem(keys[i], values[i]);
-        setLocalStorageInfoObj[keys[i]] = values[i];
-      }
-    } else if (typeof keys === 'string' && typeof values === 'string') {
-      localStorage.setItem(keys, values);
-      setLocalStorageInfoObj[keys] = values;
+    for (const [key, value] of Object.entries(dataObj)) {
+      localStorage.setItem(key, value);
     }
 
     for (const [key, domain] of Object.entries(guestDomains!)) {
@@ -67,7 +85,7 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
         guestDomain,
         guestDomains: guestDomains!,
         lastGuestKey, 
-        setLocalStorageInfoObj,
+        setLocalStorageInfoObj: dataObj,
       };
       iframePostMessage(postMessageObj);
     }
@@ -76,7 +94,6 @@ export const setItem = async (keys: TKeys, values: TValues): Promise<IResultMess
       status: 'SUCCESS'
     };
   } catch (err) {
-    console.error(err);
     return {
       status: 'FAILED',
       message: err,

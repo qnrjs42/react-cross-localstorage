@@ -15,18 +15,16 @@ type TKeys = string[] | string;
 
 export const removeItem = async (keys: TKeys): Promise<IResultMessage> => {
   try {
-    const guestDomains = await getGuestDomains();
     const pathName: string = getPathName();
+    const guestDomains = await getGuestDomains();
 
     const errorMessage: IResultMessage = await returnError({
-      guestDomains,
-      pathName,
       keys,
+      pathName,
+      guestDomains,
     });
 
-    if (errorMessage.status === 'FAILED') {
-      throw new Error(errorMessage.message);
-    }
+    if (errorMessage.status === 'FAILED') throw errorMessage;
 
     const domainsCount: number = Object.keys(guestDomains!).length - 1;
     const lastGuestKey: string = Object.keys(guestDomains!)[domainsCount];
@@ -35,9 +33,7 @@ export const removeItem = async (keys: TKeys): Promise<IResultMessage> => {
     resetPostCount();
     const iframeLoadMessage: IResultMessage = await iframeLoadingSleep(domainsCount);
 
-    if (iframeLoadMessage.status === 'FAILED') {
-      throw new Error(iframeLoadMessage.message);
-    }
+    if (iframeLoadMessage.status === 'FAILED') throw iframeLoadMessage;
     
     // compare and set host key
     const hostDomainKey: string = findKey(guestDomains!);
@@ -72,9 +68,6 @@ export const removeItem = async (keys: TKeys): Promise<IResultMessage> => {
     };
   } catch (err) {
     console.error(err);
-    return {
-      status: 'FAILED',
-      message: err,
-    };
+    return err;
   }
 };
