@@ -9,13 +9,13 @@ now: not completed
 
 Hello!
 
-- react에서 localstorage를 편하게 공유하기 위해 패키지를 만들었습니다.
+- react에서 localstorage를 편하게 공유하기 위해 패키지를 만들었습니다.<br/>
   I made package for convenient react cross localstorage share.
 
-- `react-cross-localstorage`는 Iframe을 통해 localstorage를 공유합니다.
+- `react-cross-localstorage`는 Iframe을 통해 localstorage를 공유합니다.<br/>
   `react-cross-localstorage` is using Iframe.
 
-- localstorage 사용방법을 알고 계신다면 정말 간단하게 사용할 수 있으며, 초기 세팅만 해준다면 `react-cross-localstorage`로 대체 가능합니다.
+- localstorage 사용방법을 알고 계신다면 정말 간단하게 사용할 수 있으며, 초기 세팅만 해준다면 `react-cross-localstorage`로 대체 가능합니다.<br/>
 
   If you are knowing window.localstorage and then, you'll use very easy.
 
@@ -34,16 +34,16 @@ and then, Email send me or create Issue!!!
 
 ## 특징
 
-- Iframe을 이용하여 localstorage를 공유합니다.
+- Iframe을 이용하여 localstorage를 공유합니다.<br/>
   It shares Localstorage using Iframe.
 
-- 공유뿐만 아니라 제거도합니다.
+- 공유뿐만 아니라 제거도합니다.<br/>
   You can use removeItem(), clear()
-- 타입스크립트를 지원합니다.
+- 타입스크립트를 지원합니다.<br/>
   It Supports Typescript.
-- 비동기를 지원합니다.
+- 비동기를 지원합니다.<br/>
   It Supports Sync/Async.
-- 편합니다.
+- 편합니다.<br/>
   It is So easy and Awesome.
 
 ---
@@ -52,12 +52,12 @@ and then, Email send me or create Issue!!!
 
 ### 1. set guest domains
 
-- 도메인(호스트, 게스트 포함)들의 경로를 지정합니다.
+- 도메인(호스트, 게스트 포함)들의 경로를 지정합니다.<br/>
 
-  **도메인의 경로는 동일한 경로이어야 합니다.**
-  You should set domain(with host, guest).
+  **도메인의 경로는 동일한 경로이어야 합니다.**<br/>
+  You should set domain(with host, guest).<br/>
   **All domain must be same path.**
-- **3차 도메인이 없는 경우 무조건 키 값을 'main'으로 지정합니다.**
+- **3차 도메인이 없는 경우 무조건 키 값을 'main'으로 지정합니다.**<br/>
   **If tertiary domain is none and then, you have to put in 'main' key.**
 
 ```ts
@@ -78,9 +78,9 @@ export const getDoamins = () => {
 
 ### 2. init(IInit)
 
-- guestDoamins의 Iframe을 생성하고, 데이터를 전달 받을 준비합니다.
+- guestDoamins의 Iframe을 생성하고, 데이터를 전달 받을 준비합니다.<br/>
   Only guestDomains creates Iframe and, get ready for listen data.
-- init 설정이 끝나면 `react-cross-localstorage`를 사용할 수 있습니다.
+- init 설정이 끝나면 `react-cross-localstorage`를 사용할 수 있습니다.<br/>
   When the init setup is complete, `react-cross-localstorage` is available.
 
 ```tsx
@@ -102,7 +102,7 @@ componentDidMount() {
 
 ### getItem(string)
 
-- localstorage를 가져옵니다.
+- localstorage를 가져옵니다.<br/>
   Get localstorage.
 
 ```ts
@@ -116,7 +116,7 @@ console.log(item); // tokenValue
 
 ### getItems(string[])
 
-- localstorage를 가져옵니다.
+- localstorage를 가져옵니다.<br/>
   Get localstorage.
 
 ```ts
@@ -144,7 +144,7 @@ console.log(setItemResult);
 
 ### setItems(ISetItem)
 
-- localstorage를 생성합니다.
+- localstorage를 생성합니다.<br/>
   Set localstorage.
 
 ```ts
@@ -163,7 +163,7 @@ console.log(setItemsResult)
 
 ### removeItem(string | string[])
 
-- localstorage를 제거합니다.
+- localstorage를 제거합니다.<br/>
   Remove localstorage.
 
 ```tsx
@@ -186,7 +186,7 @@ console.log(removeItemResult);
 
 ### clear()
 
-- localstorage를 모두 제거합니다.
+- localstorage를 모두 제거합니다.<br/>
   All clear localstorage.
 
 ```tsx
@@ -200,10 +200,10 @@ console.log(removeItemResult);
 
 ### close()
 
-- host의 Iframe을 제거합니다. 제거가 된 후 다시 데이터를 전송할 수 없습니다.
+- host의 Iframe을 제거합니다. 제거가 된 후 다시 데이터를 전송할 수 없습니다.<br/>
 
-  다시 데이터를 전송하기 위해서는 init()해야 합니다.
-  close host Iframe. you can't send data more.
+  다시 데이터를 전송하기 위해서는 init()해야 합니다.<br/>
+  close host Iframe. you can't send data more.<br/>
   If you wanna send data, you create init() again.
 
 ```tsx
@@ -219,42 +219,6 @@ console.log(setItemsResult);
 
 const closeResult: IResultMessage = crossStorage.close(); // here
 console.log(closeResult);
-```
-
-
-
-### setItemsOnce(IInit, ISetItem)
-
-- init + setItems + close를 한 번에 처리합니다.
-  init + setItems + close at once.
-
-```tsx
-// src/App.tsx
-// crossStorage.init(initData); // here
-```
-
-```tsx
-import crossStorage, { IResultMessage, ISetItems, IInit } from 'react-cross-localstorage';
-
-// const setItemResult: IResultMessage = await crossStorage.setItem('tokenKey', 'tokenValue'); // here
-
-// const closeResult: IResultMessage = crossStorage.close(); // here
-
-const setItemsData: ISetItems = {
-  tokenKey: 'tokenValue',
-  uuidKey: 'uuidValue',
-}
-
-const initData: IInit = {
-	guestDomains: getDoamins(),
-  reactId: 'root' // options (react DOM root id tag)
-}
-
-const setItemOnceResult: IResultMessage = await crossStorage.setItemOnce(
-  initData, 
-  setItemsData
-);
-console.log(setItemOnceResult);
 ```
 
 
@@ -309,45 +273,6 @@ or
 crossStorage.setItems(setItemsData)
 .then((setItemResult: IResultMessage) => {
   console.log(setItemResult);
-});
-console.log('first');
-```
-
-```shell
-# Console
-first
-
-or
-
-first
-{ status: 'SUCCESS' }
-```
-
-
-
-### setItemsOnce(IInit, ISetItem) Async
-
-```ts
-import crossStorage, { IResultMessage, ISetItems, IInit } from 'react-cross-localstorage';
-
-const setItemsData: ISetItems = {
-  tokenKey: 'tokenValue',
-  uuidKey: 'uuidValue',
-}
-
-const initData: IInit = {
-	guestDomains: getDoamins(),
-  reactId: 'root' // options (react DOM root id tag)
-}
-
-crossStorage.setItemsOnce(initData, setItemsData);
-console.log('first');
-
-or
-
-crossStorage.setItemsOnce(initData, setItemsData)
-.then((setItemsOnceResult: IResultMessage) => {
-  console.log(setItemsOnceResult);
 });
 console.log('first');
 ```
@@ -441,6 +366,10 @@ or
 
 
 ## Update Note
+
+### 21.03.10 [0.8.1 v]
+
+- README 설명 수정
 
 ### 21.03.10 [0.8.0 v]
 
